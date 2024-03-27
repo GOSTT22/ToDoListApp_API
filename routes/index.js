@@ -19,4 +19,14 @@ router.post("/api/clients", function (req, res, next) {
   res.json({ ok: true });
 });
 
+router.put("/api/clients/:id", function (req, res, next) {
+  const id = req.params.id;
+  console.log(req.body);
+  Task.findByIdAndUpdate(id, req.body).then(task => {
+    res.json({ ok: true });
+    console.log(task);
+  })
+
+});
+
 module.exports = router;
