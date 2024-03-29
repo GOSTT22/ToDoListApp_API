@@ -14,6 +14,7 @@ router.get("/api/clients", function (req, res, next) {
 
 router.post("/api/clients", function (req, res, next) {
   console.log(req.body);
+  delete req.body._id;
   const task = new Task(req.body);
   task.save().then(() => console.log("meow"));
   res.json({ ok: true });
