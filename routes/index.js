@@ -1,6 +1,47 @@
 var express = require("express");
 var router = express.Router();
 const Task = require("../models/task");
+const jwtwebtoken = require('jsonwebtoken');
+const { expressjwt: requireJwt } = require('express-jwt');  // Исправлено
+const bcrypt = require('bcryptjs');
+const User = require('../models/user');
+
+const secret = 'your_secret_key';  // Это ваш секретный ключ для JWT
+
+// Миддлвар для валидации токенов
+const authenticate = requireJwt({ secret: secret, algorithms: ['HS256'] });  // Исправлено
+
+
+// Регистрация пользователя
+router.post('/register', async (req, res) => {
+  console.log("register")
+  const { username, password, email, firstname, lastname } = req.body;
+  const user = await User.findOne({username});
+  if (user) {
+      return res.status(400).send('Пользователь уже существует.');
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = new User({username, password: hashedPassword, email, firstname, lastname})
+  await newUser.save()
+  res.send('Пользователь успешно зарегистрирован.');
+});
+
+// Логин и генерация токена
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  const userPassword = users[username];
+  if (!userPassword || !(await bcrypt.compare(password, userPassword))) {
+      return res.status(401).send('Неверное имя пользователя или пароль.');
+  }
+  const token = jwtwebtoken.sign({ username }, secret, { expiresIn: '1h' });
+  res.send({ message: 'Аутентификация прошла успешно', token });
+});
+
+// Защищённый маршрут, требующий аутентификации
+router.get('/protected', authenticate, (req, res) => {
+  res.send(`Добро пожаловать, ${req.user.username}! Вы на защищенной странице.`);
+});
+
 
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
