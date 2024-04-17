@@ -8,6 +8,7 @@ const User = require('../models/user');
 
 // Миддлвар для валидации токенов
 const authenticate = requireJwt({ secret: process.env.JWT_SECRET, algorithms: ['HS256'] });  // Исправлено
+console.log(process.env.JWT_SECRET)
 
 // Регистрация пользователя
 router.post('/register', async (req, res) => {
@@ -27,7 +28,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({username});
-  if (!user || !(await bcrypt.compare(password, user.password))) {
+  if (!user || !(bcrypt.compare(password, user.password))) {
       return res.status(401).send('Неверное имя пользователя или пароль.');
   }
   const token = jwtwebtoken.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -36,7 +37,8 @@ router.post('/login', async (req, res) => {
 
 // Защищённый маршрут, требующий аутентификации
 router.get('/protected', authenticate, (req, res) => {
-  res.send(`Добро пожаловать, ${req.user.username}! Вы на защищенной странице.`);
+  console.log(req.auth)
+  res.send(`Добро пожаловать, ${req.auth.username}! Вы на защищенной странице.`);
 });
 
 
