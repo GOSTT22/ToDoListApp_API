@@ -29,8 +29,9 @@ router.post('/register', async (req, res) => {
 // Логин и генерация токена
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const userPassword = users[username];
-  if (!userPassword || !(await bcrypt.compare(password, userPassword))) {
+  const user = await User.findOne({username});
+  console.log(user)
+  if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).send('Неверное имя пользователя или пароль.');
   }
   const token = jwtwebtoken.sign({ username }, secret, { expiresIn: '1h' });
