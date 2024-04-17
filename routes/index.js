@@ -6,11 +6,8 @@ const { expressjwt: requireJwt } = require('express-jwt');  // Исправле�
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
-const secret = 'your_secret_key';  // Это ваш секретный ключ для JWT
-
 // Миддлвар для валидации токенов
-const authenticate = requireJwt({ secret: secret, algorithms: ['HS256'] });  // Исправлено
-
+const authenticate = requireJwt({ secret: process.env.JWT_SECRET, algorithms: ['HS256'] });  // Исправлено
 
 // Регистрация пользователя
 router.post('/register', async (req, res) => {
@@ -30,11 +27,10 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({username});
-  console.log(user)
   if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).send('Неверное имя пользователя или пароль.');
   }
-  const token = jwtwebtoken.sign({ username }, secret, { expiresIn: '1h' });
+  const token = jwtwebtoken.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
   res.send({ message: 'Аутентификация прошла успешно', token });
 });
 

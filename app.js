@@ -7,6 +7,8 @@ var logger = require('morgan');
 const mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://anatoliygostichev:UZjGk8ZyFxrSzSny@cluster0.rmjjy2g.mongodb.net/todo');
 
+const dotenv = require('dotenv')
+dotenv.config()
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
