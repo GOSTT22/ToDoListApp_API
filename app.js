@@ -21,11 +21,19 @@ var app = express();
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
+// app.use(cors({
+//   allowedOrigins: [
+//       'localhost:4200'
+//   ]
+// }))
+
 app.use(cors({
-  allowedOrigins: [
-      'localhost:4200'
-  ]
-}))
+  origin: ['http://localhost:4200'], // Указывает, с какого источника разрешены запросы
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTION'], // Список HTTP-методов, которые сервер готов принять
+  allowedHeaders: ['Content-Type', 'Authorization'], // Список заголовков, которые разрешено отправлять с запросом
+  credentials: true, // Если необходимо поддерживать учетные данные сессии (например, cookies)
+  optionsSuccessStatus: 200 // Код ответа для успешных запросов типа OPTIONS
+}));
 
 app.use(logger("dev"));
 app.use(express.json());
