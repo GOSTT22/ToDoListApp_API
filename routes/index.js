@@ -73,8 +73,9 @@ router.get("/api/me", authenticate, (req, res) => {
       console.log("Данные из токена:", decoded);
       const username = decoded.username;
       const user = await User.findOne({ username });
-      const { email, firstname, lastname } = user;
+      const { _id, email, firstname, lastname } = user;
       const protectedUser = {
+        _id,
         username,
         email,
         firstname,
@@ -85,13 +86,27 @@ router.get("/api/me", authenticate, (req, res) => {
   });
 });
 
-router.get("/api/clients", function (req, res, next) {
-  Task.find({}).then((tasks) => {
-    res.json(tasks);
+router.get("/api/clients", authenticate, async function (req, res, next) {
+  const token = req.headers.authorization.split(" ")[1];
+  jwtwebtoken.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      console.error("Ошибка при расшифровке токена:", err);
+      res.json({ error: "Ошибка токена" });
+      // Обработка ошибки, если токен невалидный
+    } else {
+      const username = decoded.username;
+      const user = await User.findOne({ username });
+      const { _id, email, firstname, lastname } = user;
+      Task.find({authorId:_id}).then((tasks) => {
+        res.json(tasks);
+      });
+    }
   });
+
+  
 });
 
-router.post("/api/clients", function (req, res, next) {
+router.post("/api/clients",  function (req, res, next) {
   console.log(req.body);
   delete req.body._id;
   const task = new Task(req.body);
